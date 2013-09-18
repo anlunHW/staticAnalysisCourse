@@ -61,7 +61,7 @@ language=llang
 \hrule
 \vspace{1.2cm}
 
-\section{Описать семантику Repeat-Until без использования других операторов}
+\section{Описание семантики Repeat-Until без использования других операторов \label{withoutOper}}
 
 $$
 \crule{\trans{c}{\mbox{$S$}}{c^\prime}}
@@ -78,7 +78,7 @@ $$
 \ruleno{Repeat1-false$_{bs}$}
 $$
 
-\section{Описать семантику Repeat-Until через другие операторы}
+\section{Описание семантики Repeat-Until через другие операторы \label{withOper}}
 
 $$
 \crule
@@ -99,6 +99,135 @@ $$
 		{}
 \ruleno{Repeat2$_{bs}$}
 $$
+
+\section{Доказательство эквивалентности представленных семантик}
+% Предположим, что из конфигурации $c$ под действием семантики BS, дополненной семантическими правилами $Repeat1-true_{bs}$ и $Repeat1-false_{bs}$, оператора \llang{repeat $\;S\;$ until $\;e\;$}, по\begin{figure}лучается конфигурация $c^\prime$:
+
+Пусть с использованием правил $Repeat1-true_{bs}$ и $Repeat1-false_{bs}$ было произведено преобразование рис. \ref{ccprime}.
+
+\begin{figure}[h!]
+$$
+\trans{c}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}
+$$
+\caption{Преобразование с помощью $Repeat1_{bs}$}
+\label{ccprime}
+\end{figure}
+
+Тогда если была получена финальная конфигурация $c^\prime$, то дерево вывода имеет некоторую конечную высоту --- $N$. При этом считаем, что в дереве вывода не раскрывается оператор $S$. Так как применение $Repeat1-false_{bs}$ не может быть листом в дереве вывода, то последнее примененное правило --- $Repeat1-true_{bs}$.
+Также понятно, что применение $Repeat1-true_{bs}$ не может быть не последним. Таким образом дерево вывода может быть записано как на рис. \ref{ccprimeTree1}.
+
+\begin{figure}[h!]
+
+$$
+\crule
+	{
+		\trans{c}{\mbox{$S$}}{c_1}
+		,\;
+		% \trans{c_1}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}			
+		\crule
+			{
+				\trans{c_1}{\mbox{$S$}}{c_2}
+				,\;
+				% \trans{c_2}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}	
+				\crule
+				{
+					\crule
+					{\trans{c_N}{\mbox{$S$}}{c^\prime}}
+					{...}
+					{\sembr{e}\;{c_N}.s\ne0}
+					% \ruleno{Repeat1-true$_{bs}$}
+				}
+				{
+					\trans{c_2}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}	
+				}
+				{}
+			}
+			{\trans{c_1}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}}
+			{\sembr{e}\;c_2.s=0}
+		% $\ruleno{Repeat1-false$_{bs}$}$
+	}
+	{
+		\trans{c}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}		
+	}
+	{\sembr{e}\;c_1.s=0}
+\ruleno{Repeat1-false$_{bs}$}
+$$
+\label{ccprimeTree1}
+\caption{Дерево вывода, построенное с помощью $Repeat1_{bs}$}
+\end{figure}
+
+При построении дерева вывода с помощью $Repeat2_{bs}$ на первых итерациях получается аналогичное дерево (см. рис. \ref{ccprimeTree2}).
+
+\begin{figure}[h!]
+
+$$
+\crule
+	{
+		\trans{c}{\mbox{$S$}}{c^\prime_1}
+		,\;
+		\crule
+			{
+				\trans{c^\prime_1}{\mbox{$S$}}{c^\prime_2}
+				,\;
+				\crule
+				{...}
+				{
+					\trans{c^\prime_2}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}	
+				}
+				{}
+			}
+			{\trans{c^\prime_1}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}}
+			{\sembr{e}\;c^\prime_2.s=0}
+	}
+	{
+		\trans{c}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}		
+	}
+	{\sembr{e}\;c^\prime_1.s=0}
+\ruleno{Repeat2$_{bs}$}
+$$
+\label{ccprimeTree2}
+\caption{Дерево вывода, построенное с помощью $Repeat2_{bs}$}
+\end{figure}
+
+Очевидно, что конфигурации $c_i$ и $c'_i$ совпадают для всех соответствующих $i$.
+Тогда из того, что $\sembr{e}\;{c_N}.s\ne0$ следует $\sembr{e}\;{c^\prime_N}.s\ne0$.
+Соотвественно, дерево вывода, построенное с помощью $Repeat2_{bs}$ будет выглядеть как изображенное на рис. \ref{ccprimeTree2Full}.
+
+\begin{figure}[h!]
+
+$$
+\crule
+	{
+		\trans{c}{\mbox{$S$}}{c_1}
+		,\;
+		\crule
+			{
+				\trans{c_1}{\mbox{$S$}}{c_2}
+				,\;
+				\crule
+				{
+					\crule
+					{\trans{c_N}{\mbox{$S$}}{c^\prime}}
+					{...}
+					{\sembr{e}\;{c_N}.s\ne0}
+				}
+				{
+					\trans{c_2}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}	
+				}
+				{}
+			}
+			{\trans{c_1}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}}
+			{\sembr{e}\;c_2.s=0}
+	}
+	{
+		\trans{c}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}		
+	}
+	{\sembr{e}\;c_1.s=0}
+\ruleno{Repeat2$_{bs}$}
+$$
+\label{ccprimeTree2Full}
+\caption{Полное дерево вывода, построенное с помощью $Repeat2_{bs}$}
+\end{figure}
 
 
 \end{document}
