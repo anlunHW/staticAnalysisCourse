@@ -114,7 +114,7 @@ $$
 \end{figure}
 
 Тогда если была получена финальная конфигурация $c^\prime$, то дерево вывода имеет некоторую конечную высоту --- $N$. При этом считаем, что в дереве вывода не раскрывается оператор $S$. Так как применение $Repeat1-false_{bs}$ не может быть листом в дереве вывода, то последнее примененное правило --- $Repeat1-true_{bs}$.
-Также понятно, что применение $Repeat1-true_{bs}$ не может быть не последним. Таким образом дерево вывода может быть записано как на рис. \ref{ccprimeTree1}.
+Также понятно, что применение $Repeat1-true_{bs}$ не может быть не последним. Таким образом дерево вывода может быть записано как на рис. \ref{ccprimeTreeR1}.
 
 \begin{figure}[h!]
 
@@ -134,7 +134,7 @@ $$
 					\crule
 					{\trans{c_N}{\mbox{$S$}}{c^\prime}}
 					{...}
-					{\sembr{e}\;{c_N}.s\ne0}
+					{\sembr{e}\;{c^\prime}.s\ne0}
 					% \ruleno{Repeat1-true$_{bs}$}
 				}
 				{
@@ -152,8 +152,8 @@ $$
 	{\sembr{e}\;c_1.s=0}
 \ruleno{Repeat1-false$_{bs}$}
 $$
-\label{ccprimeTree1}
 \caption{Дерево вывода, построенное с помощью $Repeat1_{bs}$}
+\label{ccprimeTreeR1}
 \end{figure}
 
 При построении дерева вывода с помощью $Repeat2_{bs}$ на первых итерациях получается аналогичное дерево (см. рис. \ref{ccprimeTree2}).
@@ -185,8 +185,8 @@ $$
 	{\sembr{e}\;c^\prime_1.s=0}
 \ruleno{Repeat2$_{bs}$}
 $$
-\label{ccprimeTree2}
 \caption{Дерево вывода, построенное с помощью $Repeat2_{bs}$}
+\label{ccprimeTree2}
 \end{figure}
 
 Очевидно, что конфигурации $c_i$ и $c'_i$ совпадают для всех соответствующих $i$.
@@ -207,9 +207,20 @@ $$
 				\crule
 				{
 					\crule
-					{\trans{c_N}{\mbox{$S$}}{c^\prime}}
+					{
+						\trans{c_N}{\mbox{$S$}}{c^{\prime\prime}}
+						,\;
+						% \trans{c^{\prime\prime}}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}
+						\crule
+						{
+							\trans{c^{\prime\prime}}{\llang{skip}}{c^\prime}
+						}
+						{\trans{c^{\prime\prime}}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}}
+						{\sembr{e}\;{c^{\prime\prime}}.s\ne0}
+					}
 					{...}
-					{\sembr{e}\;{c_N}.s\ne0}
+					{\sembr{e}\;{c^{\prime\prime}}.s\ne0}
+					% {}
 				}
 				{
 					\trans{c_2}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}	
@@ -218,16 +229,22 @@ $$
 			}
 			{\trans{c_1}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}}
 			{\sembr{e}\;c_2.s=0}
+			% {}
 	}
 	{
 		\trans{c}{\llang{while $\;e=0\;$ do $\;S\;$}}{c^\prime}		
 	}
+	% {}
 	{\sembr{e}\;c_1.s=0}
 \ruleno{Repeat2$_{bs}$}
 $$
-\label{ccprimeTree2Full}
 \caption{Полное дерево вывода, построенное с помощью $Repeat2_{bs}$}
+\label{ccprimeTree2Full}
 \end{figure}
+
+Конфигурации $c^\prime$ и $c^{\prime\prime}$ совпадают. Таким образом, мы получили ту же конфигурацию $c^\prime$, как и при применении правил $Repeat1_{bs}$.
+Аналогичным образом получается дерево вывода для правил $Repeat1_{bs}$ через дерево вывода $Repeat2_{bs}$.
+$\Box$ 
 
 
 \end{document}
