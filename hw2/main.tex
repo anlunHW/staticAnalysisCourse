@@ -61,6 +61,26 @@ language=llang
 \hrule
 \vspace{1.2cm}
 
+\section{L + Array}
+
+\subsection{Описание семантики выражений}
+
+\begin{enumerate}
+\item $\sembr{\{e_{1}, ..., e_{k}\}}s = (\sembr{e_{1}}s, ..., \sembr{e_{k}}s)$, если $\forall i$ $\sembr{e_{i}}s$ определен.
+
+\item $\sembr{e_{1}[e_{2}]}s = p_{a}$, если $A = \sembr{e_{2}}s \in \mathbb{Z}$, $\sembr{e_{1}}s = (p_{1}, ..., p_{k})$, $1 \leq A \leq k$ 
+\end{enumerate}
+
+\subsection{Описание семантики BS операторов}
+
+\begin{enumerate}
+\item $\trans{\inbr{s,i,o}}{e_{1}[e_{2}] := e_{3}}{\inbr{s[e1 \gets (p_{1}, ..., p_{A-1}, \sembr{e_{3}}s, p_{A+1}, ...,p_{k}],i,o}}$,
+
+если $\sembr{e_{1}}s = (p_{1}, ...,p_{k})$, $A = \sembr{e_{2}}s \in \mathbb{Z}$, $1 \leq A \leq k$
+
+\item $\trans{\inbr{s,i,o}}{write(x)}{\inbr{s,i,o s[x]}}$, если $s[x] \in \mathbb{Z}$
+\end{enumerate}
+
 \section{Описание семантики CPS Repeat-Until}
 
 $$
