@@ -1,0 +1,103 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+
+\lstdefinelanguage{llang}{
+keywords={skip, do, while, read, write, if, then, else},
+sensitive=true,
+%%basicstyle=\small,
+commentstyle=\scriptsize\rmfamily,
+keywordstyle=\ttfamily\underbar,
+identifierstyle=\ttfamily,
+basewidth={0.5em,0.5em},
+columns=fixed,
+fontadjust=true,
+literate={->}{{$\to$}}1
+}
+
+\lstset{
+language=llang
+}
+
+\newcommand{\aset}[1]{\left\{{#1}\right\}}
+\newcommand{\term}[1]{\mbox{\texttt{\bf{#1}}}}
+\newcommand{\cd}[1]{\mbox{\texttt{#1}}}
+\newcommand{\sembr}[1]{\llbracket{#1}\rrbracket}
+\newcommand{\conf}[1]{\left<{#1}\right>}
+\newcommand{\fancy}[1]{{\cal{#1}}}
+
+\newcommand{\trule}[2]{\frac{#1}{#2}}
+\newcommand{\crule}[3]{\frac{#1}{#2},\;{#3}}
+\newcommand{\withenv}[2]{{#1}\vdash{#2}}
+\newcommand{\trans}[3]{{#1}\xrightarrow{#2}{#3}}
+\newcommand{\ctrans}[4]{{#1}\xrightarrow{#2}{#3},\;{#4}}
+\newcommand{\llang}[1]{\mbox{\lstinline[mathescape]|#1|}}
+\newcommand{\pair}[2]{\inbr{{#1}\mid{#2}}}
+\newcommand{\inbr}[1]{\left<{#1}\right>}
+\newcommand{\highlight}[1]{\color{red}{#1}}
+\newcommand{\ruleno}[1]{\eqno[\textsc{#1}]}
+\newcommand{\inmath}[1]{\mbox{$#1$}}
+
+\newcommand{\NN}{\mathbb N}
+\newcommand{\ZZ}{\mathbb Z}
+
+\begin{document}
+
+\textbf{Домашняя работа по курсу "Статический анализ программ"}
+
+\hfill От 24.09.13
+
+\hfill Выполнил cтудент 545 гр. Подкопаев Антон
+
+\hrule
+\vspace{1.2cm}
+
+\section{Описание семантики CPS Repeat-Until}
+
+$$
+\crule
+	{
+		\Lambda\vdash\trans{c}{\mbox{$S$}}{c^\prime}
+		,\;
+		\Lambda\vdash\trans{c^\prime}{\mbox{$K$}}{c^{\prime\prime}}
+	}
+	{
+		K\vdash\trans{c}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^{\prime\prime}}
+	}
+	{\sembr{e}\;{c^{\prime}}.s\ne0}
+\ruleno{Repeat-true$_{cps}$}
+$$
+
+$$
+\crule
+	{
+		\Lambda\vdash\trans{c}{\mbox{$S$}}{c^\prime}
+		,\;
+		K\vdash\trans{c^\prime}{\mbox{\llang{repeat $\;S\;$ until $\;e\;$}}}{c^{\prime\prime}}
+	}
+	{
+		K\vdash\trans{c}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^{\prime\prime}}
+	}
+	{\sembr{e}\;{c^{\prime}}.s=0}
+\ruleno{Repeat-false$_{cps}$}
+$$
+
+
+% $$
+% \crule
+% 		{\trans{c}{\mbox{$S$}}{c^{\prime\prime}},\;\trans{c^{\prime\prime}}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}}
+% 		{\trans{c}{\llang{repeat $\;S\;$ until $\;e\;$}}{c^\prime}}
+% 		{\sembr{e}\;{c^{\prime\prime}}.s=0}
+% \ruleno{Repeat1-false$_{bs}$}
+% $$
+
+\end{document}
