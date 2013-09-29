@@ -1,0 +1,89 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+
+\lstdefinelanguage{llang}{
+keywords={skip, do, while, read, write, if, then, else},
+sensitive=true,
+%%basicstyle=\small,
+commentstyle=\scriptsize\rmfamily,
+keywordstyle=\ttfamily\underbar,
+identifierstyle=\ttfamily,
+basewidth={0.5em,0.5em},
+columns=fixed,
+fontadjust=true,
+literate={->}{{$\to$}}1
+}
+
+\lstset{
+language=llang
+}
+
+\newcommand{\aset}[1]{\left\{{#1}\right\}}
+\newcommand{\term}[1]{\mbox{\texttt{\bf{#1}}}}
+\newcommand{\cd}[1]{\mbox{\texttt{#1}}}
+\newcommand{\sembr}[1]{\llbracket{#1}\rrbracket}
+\newcommand{\conf}[1]{\left<{#1}\right>}
+\newcommand{\fancy}[1]{{\cal{#1}}}
+
+\newcommand{\trule}[2]{\frac{#1}{#2}}
+\newcommand{\crule}[3]{\frac{#1}{#2},\;{#3}}
+\newcommand{\withenv}[2]{{#1}\vdash{#2}}
+\newcommand{\trans}[3]{{#1}\xrightarrow{#2}{#3}}
+\newcommand{\ctrans}[4]{{#1}\xrightarrow{#2}{#3},\;{#4}}
+\newcommand{\llang}[1]{\mbox{\lstinline[mathescape]|#1|}}
+\newcommand{\pair}[2]{\inbr{{#1}\mid{#2}}}
+\newcommand{\inbr}[1]{\left<{#1}\right>}
+\newcommand{\highlight}[1]{\color{red}{#1}}
+\newcommand{\ruleno}[1]{\eqno[\textsc{#1}]}
+\newcommand{\inmath}[1]{\mbox{$#1$}}
+
+\newcommand{\NN}{\mathbb N}
+\newcommand{\ZZ}{\mathbb Z}
+
+\begin{document}
+
+\textbf{Домашняя работа по курсу "Статический анализ программ"}
+
+\hfill От 27.09.13
+
+\hfill Выполнил cтудент 545 гр. Подкопаев Антон
+
+\hrule
+\vspace{1.2cm}
+
+\section{L + Structure}
+
+Domain: $V = \mathbb{Z} \cup (\mathbb{F} \to V)$
+
+S: $X \to V$
+
+\subsection{Описание семантики выражений}
+
+\begin{enumerate}
+\item $\sembr{\{f_{1} = e_{1}, ..., f_{k} = e_{k}\}} = \lambda s.\lambda f_{i}.\sembr{e_{i}}s$, $i \in [1..k]$, если $\forall i \in [1..k]$: $\sembr{e_{i}}s$ определен.
+
+\item $\sembr{e.f} = \lambda s.(\sembr{e}s)f$, если $f \in dom(\sembr{e}s)$. 
+
+\item Для бинарных выражений должно быть добавлено условие, что операнды из $\mathbb{Z}$.
+\end{enumerate}
+
+\subsection{Описание семантики BS операторов}
+
+$\trans{\inbr{s, i, o}}{e_{1}.f := e_{2}}{\inbr{update(e_{1}, f, \sembr{e_{2}}s, s), i, o}}$, где
+
+\begin{itemize}
+	\item $update(x, f, y, s) = s[x \gets (s x)[f \gets y]]$, если $x \in X$, $s x \in \mathbb{F} \to V$, $f \in dom(s x)$.
+	\item $update(e.f_{1}, f_{2}, y, s) = update(e, f_{1}, (\sembr{e.f_{1}}s)[f_{2} \gets y], s)$
+\end{itemize}
+
+\end{document}
