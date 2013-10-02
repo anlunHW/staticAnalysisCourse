@@ -1,0 +1,235 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+
+\lstdefinelanguage{llang}{
+keywords={skip, do, while, read, write, if, then, else},
+sensitive=true,
+%%basicstyle=\small,
+commentstyle=\scriptsize\rmfamily,
+keywordstyle=\ttfamily\underbar,
+identifierstyle=\ttfamily,
+basewidth={0.5em,0.5em},
+columns=fixed,
+fontadjust=true,
+literate={->}{{$\to$}}1
+}
+
+\lstset{
+language=llang
+}
+
+\newcommand{\aset}[1]{\left\{{#1}\right\}}
+\newcommand{\term}[1]{\mbox{\texttt{\bf{#1}}}}
+\newcommand{\cd}[1]{\mbox{\texttt{#1}}}
+\newcommand{\sembr}[1]{\llbracket{#1}\rrbracket}
+\newcommand{\conf}[1]{\left<{#1}\right>}
+\newcommand{\fancy}[1]{{\cal{#1}}}
+
+\newcommand{\trule}[2]{\frac{#1}{#2}}
+\newcommand{\crule}[3]{\frac{#1}{#2},\;{#3}}
+\newcommand{\withenv}[2]{{#1}\vdash{#2}}
+\newcommand{\trans}[3]{{#1}\xrightarrow{#2}{#3}}
+\newcommand{\ctrans}[4]{{#1}\xrightarrow{#2}{#3},\;{#4}}
+\newcommand{\llang}[1]{\mbox{\lstinline[mathescape]|#1|}}
+\newcommand{\pair}[2]{\inbr{{#1}\mid{#2}}}
+\newcommand{\inbr}[1]{\left<{#1}\right>}
+\newcommand{\highlight}[1]{\color{red}{#1}}
+\newcommand{\ruleno}[1]{\eqno[\textsc{#1}]}
+\newcommand{\inmath}[1]{\mbox{$#1$}}
+
+\newcommand{\NN}{\mathbb N}
+\newcommand{\ZZ}{\mathbb Z}
+
+\begin{document}
+
+\textbf{Домашняя работа по курсу "Статический анализ программ"}
+
+\hfill От 01.10.13
+
+\hfill Выполнил cтудент 545 гр. Подкопаев Антон
+
+\hrule
+\vspace{1.2cm}
+
+\section*{L + labeled break/continue}
+
+Продолжение будет состоять из 3 компонент: $(K,\;B,\;C)$.
+\begin{itemize}
+	\item $K \in S$
+	\item $B, C \in \mathbb{L} \to S$, где $\mathbb{L}$ --- пространство меток.
+\end{itemize}
+ $B$ --- версия продолжения для оператора break, $C$ --- для оператора continue.
+
+\subsection*{Описание CPS семантики операторов}
+
+$$
+\withenv{\Lambda,\;B,\;C}{
+	\trans{c}{\llang{skip}}{c}
+}
+\ruleno{SkipEmpty$_{cps}$}
+$$
+
+$$
+\withenv{\Lambda,\;B,\;C}{
+	\trans{\inbr{s,i,o}}{\mbox{$x\llang{:=}e$}}{\inbr{s[x\gets\sembr{e}\;s],i,o}}
+}
+\ruleno{AssignEmpty$_{cps}$}
+$$
+
+$$
+\withenv{\Lambda,\;B,\;C}{
+	\trans{\inbr{s,zi,o}}{\mbox{$\llang{read}\;x$}}{\inbr{s[x\gets z],i,o}}
+}
+\ruleno{ReadEmpty$_{cps}$}
+$$
+
+$$
+\withenv{\Lambda,\;B,\;C}{
+	\trans{\inbr{s,i,o}}{\mbox{$\llang{write}\;e$}}{\inbr{s,i,o(\sembr{e}\;s)}}
+}
+\ruleno{WriteEmpty$_{cps}$}
+$$
+
+$$
+\trule{\withenv{\Lambda,\;B,\;C}{\trans{c}{\inmath{K}}{c^\prime}}}
+      {\withenv{K,\;B,\;C}{\trans{c}{\llang{skip}}{c^\prime}}}\ruleno{Skip$_{cps}$}
+$$
+
+$$
+\trule{\withenv{\Lambda,\;B,\;C}{\trans{\inbr{s[x\gets\sembr{e}\;s],i,o}}{\inmath{K}}{c^\prime}}}
+      {\withenv{K,\;B,\;C}{\trans{\inbr{s,i,o}}{\mbox{$x\llang{:=}e$}}{c^\prime}}}\ruleno{Assign$_{cps}$}
+$$
+
+$$
+\trule{\withenv{\Lambda,\;B,\;C}{\trans{\inbr{s[x\gets z],i,o}}{\inmath{K}}{c^\prime}}}
+      {\withenv{K,\;B,\;C}{\trans{\inbr{s,zi,o}}{\mbox{$\llang{read}\;x$}}{c^\prime}}}\ruleno{Read$_{cps}$}
+$$
+
+$$
+\trule{\withenv{\Lambda,\;B,\;C}{\trans{\inbr{s,i,o(\sembr{e}\;s)}}{\inmath{K}}{c^\prime}}}
+      {\withenv{K,\;B,\;C}{\trans{\inbr{s,i,o}}{\mbox{$\llang{write}\;e$}}{c^\prime}}}\ruleno{Write$_{cps}$}
+$$
+
+
+$$
+\crule
+{
+	\mbox{$
+		\withenv{\Lambda.\;B,\;C}{
+			\trans{c}{\mbox{$B\;l$}}{c'}
+		}
+	$}	
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{break l}}{c'}}	
+}
+{l \in dom(B)}
+\ruleno{Break$_{cps}$}
+$$
+
+$$
+\crule
+{
+	\mbox{$
+		\withenv{\Lambda\;B,\;C}{
+			\trans{c}{\mbox{$C\;l$}}{c'}
+		}
+	$}	
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{continue l}}{c'}}	
+}
+{l \in dom(C)}
+\ruleno{Continue$_{cps}$}
+$$
+
+$$
+\trule
+{
+	\mbox{$
+		\withenv{S_2;;K,\;B,\;C}{
+			\trans{c}{\mbox{\llang{$S_1$}}}{c'}
+		}
+	$}
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{$S_1$;$S_2$}}{c'}}
+}
+\ruleno{Seq$_{cps}$}
+$$
+
+$$
+\crule
+{
+	\mbox{$
+		\withenv{K,\;B,\;C}{
+			\trans{c}{\mbox{$S_2$}}{c'}
+		}
+	$}
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{if e then S$_1$ else S$_2$}}{c'}}
+}
+{\sembr{e}\;c.s= 0}
+\ruleno{IfFalse$_{cps}$}
+$$
+
+$$
+\crule
+{
+	\mbox{$
+		\withenv{K,\;B,\;C}{
+			\trans{c}{\mbox{$S_1$}}{c'}
+		}
+	$}
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{if e then S$_1$ else S$_2$}}{c'}}
+}
+{\sembr{e}\;c.s\ne 0}
+\ruleno{IfTrue$_{cps}$}
+$$
+
+$$
+\crule
+{
+	\mbox{$
+		\withenv{\Lambda,\;B,\;C}{
+			\trans{c}{\mbox{$K$}}{c'}
+		}
+	$}
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{while e do S}}{c'}}
+}
+{\sembr{e}\;c.s= 0}
+\ruleno{WhileFalse$_{cps}$}
+$$
+
+$$
+\crule
+{
+	\mbox{$
+		\withenv{P;;K,\;B[l \gets K],\;C[l \gets P]}{
+			\trans{c}{\mbox{$S$}}{c'}
+		}
+	$}
+}
+{
+	\withenv{K,\;B,\;C}{\trans{c}{\llang{l: while e do S}}{c'}}
+}
+{\sembr{e}\;c.s\ne 0,\;P = \llang{l: while e do S}}
+\ruleno{WhileTrue$_{cps}$}
+$$
+
+\end{document}
