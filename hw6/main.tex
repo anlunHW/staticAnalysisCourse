@@ -1,0 +1,192 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+
+\lstdefinelanguage{llang}{
+keywords={skip, do, while, read, write, if, then, else},
+sensitive=true,
+%%basicstyle=\small,
+commentstyle=\scriptsize\rmfamily,
+keywordstyle=\ttfamily\underbar,
+identifierstyle=\ttfamily,
+basewidth={0.5em,0.5em},
+columns=fixed,
+fontadjust=true,
+literate={->}{{$\to$}}1
+}
+
+\lstset{
+language=llang
+}
+
+\newcommand{\aset}[1]{\left\{{#1}\right\}}
+\newcommand{\term}[1]{\mbox{\texttt{\bf{#1}}}}
+\newcommand{\cd}[1]{\mbox{\texttt{#1}}}
+\newcommand{\sembr}[1]{\llbracket{#1}\rrbracket}
+\newcommand{\conf}[1]{\left<{#1}\right>}
+\newcommand{\fancy}[1]{{\cal{#1}}}
+
+\newcommand{\trule}[2]{\frac{#1}{#2}}
+\newcommand{\crule}[3]{\frac{#1}{#2},\;{#3}}
+\newcommand{\withenv}[2]{{#1}\vdash{#2}}
+\newcommand{\trans}[3]{{#1}\xrightarrow{#2}{#3}}
+\newcommand{\ctrans}[4]{{#1}\xrightarrow{#2}{#3},\;{#4}}
+\newcommand{\llang}[1]{\mbox{\lstinline[mathescape]|#1|}}
+\newcommand{\pair}[2]{\inbr{{#1}\mid{#2}}}
+\newcommand{\inbr}[1]{\left<{#1}\right>}
+\newcommand{\highlight}[1]{\color{red}{#1}}
+\newcommand{\ruleno}[1]{\eqno[\textsc{#1}]}
+\newcommand{\inmath}[1]{\mbox{$#1$}}
+
+\newcommand{\NN}{\mathbb N}
+\newcommand{\ZZ}{\mathbb Z}
+
+\begin{document}
+
+\textbf{Домашняя работа по курсу "Статический анализ программ"}
+
+\hfill От 08.11.13
+
+\hfill Выполнил cтудент 545 гр. Подкопаев Антон
+
+\hrule
+\vspace{1.2cm}
+
+\section*{Типизация для L + Structure}
+
+$\Gamma: X \rightarrow \Phi, \Phi = int \cup (\mathbb{F} \rightarrow \Phi), \mathbb{F} $--- множество меток в записях
+
+\subsection*{Подтипы}
+
+$t_1 <: t_2$, если $t_1$ и $t_2$ - функции, и $t_2|_{dom(t_1)} = t_1$
+
+
+\[
+t_1 \uparrow t_2 = \lambda s.
+\begin{cases}
+	t_1 s \text{ если } t_1 s = t_2 s
+	\\
+	\text{не определено иначе}
+\end{cases}
+\]
+
+\subsection*{Правила для выражений}
+
+$$
+\withenv{\Gamma}{
+	x : \Gamma x
+}
+$$
+
+$$
+\withenv{\Gamma}{
+	z : int
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{A : int},\;\withenv{\Gamma}{B : int}
+}
+{
+	\withenv{\Gamma}{A \oplus B : int}
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{e_i : t_i, \forall i \in [1..k]}
+}
+{
+	\withenv{\Gamma}{\{f_{1} = e_{1}, ..., f_{k} = e_{k}\} : \lambda f_i . t_i}
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{e : q, q f = t}
+}
+{
+	\withenv{\Gamma}{e . f : t}
+}
+$$
+
+\subsection*{Правила для операторов}
+
+$$
+\trans{\Gamma}{\llang{skip}}{\Gamma}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{e : int}
+}
+{
+	\trans{\Gamma}{\llang{write(e)}}{\Gamma}
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{x : int} \text{ или } \Gamma x \text{ не определен}
+}
+{
+	\trans{\Gamma}{\llang{read(x)}}{\Gamma}
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{e : t}, \text{при этом } \withenv{\Gamma}{x : t} \text{ или } \Gamma x \text{ не определен}
+}
+{
+	\trans{\Gamma}{\llang{x := e}}{\Gamma[x \leftarrow t]}
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{g : t}, \withenv{\Gamma}{e.f : t}
+}
+{
+	\trans{\Gamma}{\llang{e.f := g}}{\Gamma}
+}
+$$
+
+$$
+\trule{
+	\trans{\Gamma}{S_1}{\Gamma^{\prime\prime}}, \trans{\Gamma^{\prime\prime}}{S_2}{\Gamma^\prime}
+}
+{
+	\trans{\Gamma}{S_1; S_2}{\Gamma^\prime}	
+}
+$$
+
+$$
+\trule{
+	\withenv{\Gamma}{e : int}, \trans{\Gamma}{S}{\Gamma^\prime}
+}{
+	\trans{\Gamma}{\llang{while e do S}}{\Gamma \cup \Gamma^\prime}
+}
+$$
+
+$$
+\crule{
+	\withenv{\Gamma}{e : int}, \trans{\Gamma}{S_1}{\Gamma^\prime}, \trans{\Gamma}{S_2}{\Gamma^{\prime\prime}}
+}{
+	\trans{\Gamma}{\llang{if e then  $S_1$  else  $S_2$}}{\Gamma^{\prime} \triangledown \Gamma^{\prime\prime}}
+}{
+	\Gamma_1 \triangledown \Gamma_2 = \lambda x . (\Gamma_1 x) \uparrow (\Gamma_2 x)
+}
+$$
+
+\end{document}
